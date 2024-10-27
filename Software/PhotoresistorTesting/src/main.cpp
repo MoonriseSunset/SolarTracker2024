@@ -1,15 +1,17 @@
+
+
 #include <Arduino.h>
 
 const int pr1 = A0;
 const int pr2 = A1;
 
 const int pr1_bias = 0;
-const int pr2_bias = -2;
+const int pr2_bias = -8;
 
 const int sampleTime = 500;
 
-int pr1_data = 0;
-int pr2_data = 0;
+double pr1_data = 0;
+double pr2_data = 0;
 
 void setup() {
   
@@ -41,6 +43,11 @@ void loop() {
   Serial.print("PR2 Voltage: ");
   Serial.print(5.0*pr2_data/1023.0);
   Serial.println("V");
+
+  Serial.println();
+  Serial.print("Linearity Ratio: ");
+  Serial.print(pr1_data/pr2_data);
+  Serial.println();
 
   Serial.println();
 
