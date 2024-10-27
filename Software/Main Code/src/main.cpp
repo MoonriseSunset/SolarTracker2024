@@ -3,10 +3,10 @@ Solar Tracker Code Prototype
 
 Written by Adam Esch
 
-Last edited: 10/22/2024
+Last edited: 10/27/2024
 
 TODO:
-- Add Code for secondary photoresistor
+- Add Code for secondary axes
 
 */
 
@@ -22,72 +22,65 @@ int index = 0;
 
 const int stepSize = 10; //In degrees
 
-int maxIntensity = -1;
-int maxIndex = 0;
-int intermediate = 0;
-
-
 //Pins:
-const int servoPin = 9;
-const int sensorPin = A0;
+const int xyServo = 9;
+//const int zServo = 10;
+
+const int pr1 = A0;
 
 //Servo Setup
 const int servoMin = 0;
 const int servoMax = 180;
 
-Servo s;
+Servo xy;
+//Servo z;
 
-//Setting up array for 
-const int roughSteps = (servoMax - servoMin) / stepSize;
+float getData(int pin,int samples){
+  float result = 0.0;
 
-int roughData[roughSteps];
+  for (int i = 0; i < samples; i++){
+    result += analogRead(pin);
+  }
 
-int firstPass[roughSteps];
-int secondPass[roughSteps];
+  return result / samples;
+}
+
+void findSun(){
+
+  float pr1Max = 0.0;
+  float pr2Max = 0.0;
+  float maxIntensity = 0.0;
+  int xyThetaRef = 0;
+
+  for(int xyTheta = servoMin; xyTheta < servoMax; xyTheta += stepSize){
+    pr1Max = getData(pr1, 10);
+    //pr2Max = getData(pr2, 10);
+
+    if(pr1Max > maxIntensity){
+      maxIntensity = pr1Max;
+      xyThetaRef = xyTheta;
+    }
+  }
+
+  xy.write(xyThetaRef);
+
+}
 
 void setup() {
   //Pin Setup
-  pinMode(servoPin, OUTPUT);
-  pinMode(sensorPin, INPUT);
+  pinMode(xyServo, OUTPUT);
+  //pinMode(zServo, OUTPUT);
+  pinMode(pr1, INPUT);
 
   //Servo Startup
-  s.attach(servoPin);
+  xy.attach(xyServo);
+  //z.attach(zServo);
 
-  //First Sensing Pass from 0 to max angle
-  while(direction <= servoMax){
-    s.write(direction);
-    delay(50);
-    firstPass[index] = analogRead(sensorPin);
+  //Homing
+  xy.write(servoMin);
 
-    index++;
-    direction += stepSize;
-  }
-
-  //Second Sensing Pass from max angle to 0
-  while(direction >= servoMin){
-    s.write(direction);
-    delay(50);
-
-    secondPass[index] = analogRead(sensorPin);
-
-    index--;
-    direction -= stepSize;
-  }
-
-  //Processing Loop, averages light intensity between first and second pass and finds maximum
-  for(int i = 0; i < roughSteps; i++){
-    //Averaging intensities
-    intermediate = (firstPass[i] + secondPass[i]) / 2;
-
-    //Finding maximum
-    if(intermediate > maxIntensity){
-      maxIntensity = intermediate;
-      maxIndex = i;
-    }
-  }
+  findSun();
   
-  //Now that we have the maximum, move assembly to the max angle.
-  s.write(maxIndex * stepSize);
 }
 
 //Now do nothing
