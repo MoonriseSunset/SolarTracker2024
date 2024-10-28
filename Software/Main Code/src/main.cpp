@@ -45,21 +45,23 @@ float getData(int pin,int samples){
   return result / samples;
 }
 
-void findSun(){
+void findSun(int delayTime = 100){
 
   float pr1Max = 0.0;
-  float pr2Max = 0.0;
+  //float pr2Max = 0.0;
   float maxIntensity = 0.0;
   int xyThetaRef = 0;
 
   for(int xyTheta = servoMin; xyTheta < servoMax; xyTheta += stepSize){
-    pr1Max = getData(pr1, 10);
+    pr1Max = getData(pr1, 100);
     //pr2Max = getData(pr2, 10);
 
     if(pr1Max > maxIntensity){
       maxIntensity = pr1Max;
       xyThetaRef = xyTheta;
     }
+    xy.write(xyTheta);
+    delay(delayTime);
   }
 
   xy.write(xyThetaRef);
@@ -78,6 +80,7 @@ void setup() {
 
   //Homing
   xy.write(servoMin);
+  delay(5000);
 
   findSun();
   
