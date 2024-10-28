@@ -3,7 +3,7 @@ Solar Tracker Code Prototype
 
 Written by Adam Esch
 
-Last edited: 10/27/2024
+Last edited: 10/28/2024
 
 TODO:
 - Add Code for secondary axes
@@ -27,6 +27,7 @@ const int xyServo = 9;
 //const int zServo = 10;
 
 const int pr1 = A0;
+const int pr2 = A1;
 
 //Servo Setup
 const int servoMin = 0;
@@ -45,19 +46,22 @@ float getData(int pin,int samples){
   return result / samples;
 }
 
-void findSun(int delayTime = 100){
+void findSun(int delayTime = 100,int samples = 100){
 
   float pr1Max = 0.0;
-  //float pr2Max = 0.0;
+  float pr2Max = 0.0;
+  float sensorSum = 0.0;
   float maxIntensity = 0.0;
   int xyThetaRef = 0;
 
   for(int xyTheta = servoMin; xyTheta < servoMax; xyTheta += stepSize){
-    pr1Max = getData(pr1, 100);
-    //pr2Max = getData(pr2, 10);
+    pr1Max = getData(pr1, samples);
+    pr2Max = getData(pr2, samples);
 
-    if(pr1Max > maxIntensity){
-      maxIntensity = pr1Max;
+    sensorSum = pr1Max + pr2Max;
+
+    if(sensorSum > maxIntensity){
+      maxIntensity = sensorSum;
       xyThetaRef = xyTheta;
     }
     xy.write(xyTheta);
@@ -72,7 +76,9 @@ void setup() {
   //Pin Setup
   pinMode(xyServo, OUTPUT);
   //pinMode(zServo, OUTPUT);
+
   pinMode(pr1, INPUT);
+  pinMode(pr2, INPUT);
 
   //Servo Startup
   xy.attach(xyServo);
@@ -82,10 +88,10 @@ void setup() {
   xy.write(servoMin);
   delay(5000);
 
-  findSun();
+  findSun(100,100);
   
 }
 
-//Now do nothing
+//Now do nothing, for now
 void loop() {
 }
