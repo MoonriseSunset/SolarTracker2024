@@ -6,6 +6,10 @@
 		{
 			"name": "Main Code",
 			"path": "Main Code"
+		},
+		{
+			"name": "In-Class Code",
+			"path": "In-Class Code"
 		}
 	],
 	"settings": {}
