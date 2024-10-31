@@ -5,6 +5,8 @@ Written by Adam Esch
 
 Last edited: 10/29/2024
 
+PLATFORMIO VERSION
+
 TODO:
 - Add Code for secondary axes
 
@@ -16,10 +18,7 @@ TODO:
 //Library Setup
 #include <Servo.h>
 
-//Vars:
-int direction = 0;
-int index = 0;
-
+//Variables
 const int stepSize = 10; //In degrees
 
 //Pins:
